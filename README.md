@@ -1,4 +1,4 @@
-# clBitCrack
+# clBitCrack_Novo
 
 Fixed a critical bug that occurred when running clbitcrack on AMD graphics cards.
 
@@ -57,7 +57,8 @@ pacman -S mingw-w64-x86_64-gcc \
           mingw-w64-x86_64-opencl-icd \
           mingw-w64-x86_64-opencl-headers
 
-cd /user/src/bitcrack_cl
+/user/src/clBitCrack_Novo
+cd clBitCrack_Novo
 make clean
 make BUILD_OPENCL=1          # ou  BUILD_CUDA=1  se tiver nvcc
 The binaries will appear in bin/ (clBitCrack.exe, addrgen.exe, …).          
@@ -68,7 +69,9 @@ The binaries will appear in bin/ (clBitCrack.exe, addrgen.exe, …).
 4. Build:
 
 ```bash
-cd /c/src/clbitcrack
+gitclone https://github.com/Hash-Crypto-6568e1158933296b86/clBitCrack_Novo.git
+/home/src/clBitCrack_Novo
+cd clBitCrack_Novo
 make BUILD_OPENCL=1
 ```
 
@@ -155,6 +158,7 @@ Where `[TARGETS]` are one or more Bitcoin addresses.
 ### Verified output example (AMD Radeon RX 470, OpenCL)
 
 ```
+./clBitCrack --continue puzzle69 -b 256 -t 256 -p 256 --keyspace 101d83275000000000:1fffffffffffffffff --compressed 19vkiEajfhuZ8bs8Zu2jgmC6oqZbWqhxhG
 [2026-06-26.04:19:04] [Info] Compression: compressed
 [2026-06-26.04:19:04] [Info] Starting at: 0000000000000000000000000000000000000000000000101D83275000000000
 [2026-06-26.04:19:04] [Info] Ending at:   00000000000000000000000000000000000000000000001FFFFFFFFFFFFFFFFF
