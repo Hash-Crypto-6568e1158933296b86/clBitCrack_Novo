@@ -38,7 +38,7 @@ typedef struct {
     unsigned int blocks = 0;
     unsigned int pointsPerThread = 0;
     
-    int compression = PointCompressionType::COMPRESSED;
+    int compression = PointCompressionType::BOTH;
  
     std::vector<std::string> targets;
 

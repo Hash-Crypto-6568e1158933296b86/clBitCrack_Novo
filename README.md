@@ -1,185 +1,219 @@
-# BitCrack
+# clBitCrack
 
-A tool for brute-forcing Bitcoin private keys. The main purpose of this project is to contribute to the effort of solving the [Bitcoin puzzle transaction](https://blockchain.info/tx/08389f34c98c606322740c0be6a7125d9860bb8d5cb182c02f98461e5fa6cd15): A transaction with 32 addresses that become increasingly difficult to crack.
+Fixed a critical bug that occurred when running clbitcrack on AMD graphics cards.
 
+A GPU-accelerated Bitcoin private key search tool with support for both **CUDA** (NVIDIA) and **OpenCL** (AMD/Intel) devices.
 
-### Using BitCrack
+---
 
-#### Usage
+## Table of Contents
 
+- [Building](#building)
+- [Usage](#usage)
+- [Options](#options)
+- [Examples](#examples)
+- [Choosing Parameters](#choosing-the-right-parameters-for-your-device)
+- [Supporting this project](#supporting-this-project)
 
-Use `cuBitCrack.exe` for CUDA devices and `clBitCrack.exe` for OpenCL devices.
+---
 
-### Note: **clBitCrack.exe is still EXPERIMENTAL**, as users have reported critial bugs when running on some AMD and Intel devices.
+## Building
 
-**Note for Intel users:**
+### Compile on Linux
 
-There is bug in Intel's OpenCL implementation which affects BitCrack. Details here: https://github.com/brichard19/BitCrack/issues/123
-
-
-```
-xxBitCrack.exe [OPTIONS] [TARGETS]
-
-Where [TARGETS] are one or more Bitcoin address
-
-Options:
-
--i, --in FILE
-    Read addresses from FILE, one address per line. If FILE is "-" then stdin is read
-
--o, --out FILE
-    Append private keys to FILE, one per line
-
--d, --device N
-    Use device with ID equal to N
-
--b, --blocks BLOCKS
-    The number of CUDA blocks
-
--t, --threads THREADS
-    Threads per block
-
--p, --points NUMBER
-    Each thread will process NUMBER keys at a time
-
---keyspace KEYSPACE
-    Specify the range of keys to search, where KEYSPACE is in the format,
-
-	START:END start at key START, end at key END
-	START:+COUNT start at key START and end at key START + COUNT
-    :END start at key 1 and end at key END
-	:+COUNT start at key 1 and end at key 1 + COUNT
-
--c, --compressed
-    Search for compressed keys (default). Can be used with -u to also search uncompressed keys
-
--u, --uncompressed
-    Search for uncompressed keys, can be used with -c to search compressed keys
-
---compression MODE
-    Specify the compression mode, where MODE is 'compressed' or 'uncompressed' or 'both'
-
---list-devices
-    List available devices
-
---stride NUMBER
-    Increment by NUMBER
-
---share M/N
-    Divide the keyspace into N equal sized shares, process the Mth share
-
---continue FILE
-    Save/load progress from FILE
-```
-
-#### Examples
-
-The simplest usage, the keyspace will begin at 0, and the CUDA parameters will be chosen automatically
-```
-xxBitCrack.exe 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH
-```
-
-Multiple keys can be searched at once with minimal impact to performance. Provide the keys on the command line, or in a file with one address per line
-```
-xxBitCrack.exe 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH 15JhYXn6Mx3oF4Y7PcTAv2wVVAuCFFQNiP 19EEC52krRUK1RkUAEZmQdjTyHT7Gp1TYT
-```
-
-To start the search at a specific private key, use the `--keyspace` option:
-
-```
-xxBitCrack.exe --keyspace 766519C977831678F0000000000 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH
-```
-
-The `--keyspace` option can also be used to search a specific range:
-
-```
-xxBitCrack.exe --keyspace 80000000:ffffffff 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH
-```
-
-To periodically save progress, the `--continue` option can be used. This is useful for recovering
-after an unexpected interruption:
-
-```
-xxBitCrack.exe --keyspace 80000000:ffffffff 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH
-...
-GeForce GT 640   224/1024MB | 1 target 10.33 MKey/s (1,244,659,712 total) [00:01:58]
-^C
-xxBitCrack.exe --keyspace 80000000:ffffffff 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH
-...
-GeForce GT 640   224/1024MB | 1 target 10.33 MKey/s (1,357,905,920 total) [00:02:12]
-```
-
-
-Use the `-b,` `-t` and `-p` options to specify the number of blocks, threads per block, and keys per thread.
-```
-xxBitCrack.exe -b 32 -t 256 -p 16 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH
-```
-
-### Choosing the right parameters for your device
-
-GPUs have many cores. Work for the cores is divided into blocks. Each block contains threads.
-
-There are 3 parameters that affect performance: blocks, threads per block, and keys per thread.
-
-
-`blocks:` Should be a multiple of the number of compute units on the device. The default is 32.
-
-`threads:` The number of threads in a block. This must be a multiple of 32. The default is 256.
-
-`Keys per thread:` The number of keys each thread will process. The performance (keys per second)
-increases asymptotically with this value. The default is256. Increasing this value will cause the
-kernel to run longer, but more keys will be processed.
-
-
-### Build dependencies
-
-Visual Studio 2019 (if on Windows)
-
-For CUDA: CUDA Toolkit 10.1
-
-For OpenCL: An OpenCL SDK (The CUDA toolkit contains an OpenCL SDK).
-
-
-### Building in Windows
-
-Open the Visual Studio solution.
-
-Build the `clKeyFinder` project for an OpenCL build.
-
-Build the `cuKeyFinder` project for a CUDA build.
-
-Note: By default the NVIDIA OpenCL headers are used. You can set the header and library path for
-OpenCL in the `BitCrack.props` property sheet.
-
-### Building in Linux
-
-Using `make`:
-
-Build CUDA:
-```
-make BUILD_CUDA=1
-```
-
-Build OpenCL:
-```
+**OpenCL (AMD):**
+```bash
 make BUILD_OPENCL=1
 ```
 
-Or build both:
+**CUDA (NVIDIA):**
+```bash
+make BUILD_CUDA=1
 ```
+
+**Both:**
+```bash
 make BUILD_CUDA=1 BUILD_OPENCL=1
 ```
 
-### Supporting this project
+> **Note:** The project can be cloned and built from any directory, including paths with spaces.
 
-If you find this project useful and would like to support it, consider making a donation. Your support is greatly appreciated!
+**Dependencies:**
+- OpenCL: Mesa or vendor OpenCL runtime (`ocl-icd-opencl-dev`)
+- CUDA: CUDA Toolkit 10.1+
 
-**BTC**: `1LqJ9cHPKxPXDRia4tteTJdLXnisnfHsof`
+---
 
-**LTC**: `LfwqkJY7YDYQWqgR26cg2T1F38YyojD67J`
+### Compile on Windows (MSYS2 + MinGW-w64)
 
-**ETH**: `0xd28082CD48E1B279425346E8f6C651C45A9023c5`
+1. Install [MSYS2](https://www.msys2.org/) and open the **MSYS2 MinGW 64-bit** terminal.
 
-### Contact
+2. Install build tools and OpenCL:
 
-Send any questions or comments to bitcrack.project@gmail.com
+```bash
+pacman -Syu
+pacman -S mingw-w64-x86_64-gcc \
+          mingw-w64-x86_64-make \
+          mingw-w64-x86_64-opencl-icd \
+          mingw-w64-x86_64-opencl-headers
+
+cd /user/src/bitcrack_cl
+make clean
+make BUILD_OPENCL=1          # ou  BUILD_CUDA=1  se tiver nvcc
+The binaries will appear in bin/ (clBitCrack.exe, addrgen.exe, …).          
+```
+
+3. Clone the repository into a path **without spaces** (e.g. `C:\src\clbitcrack`).
+
+4. Build:
+
+```bash
+cd /c/src/clbitcrack
+make BUILD_OPENCL=1
+```
+
+Binaries will appear in `bin/` (`clBitCrack.exe`, `addrgen.exe`, ...).
+
+---
+
+## Usage
+
+```
+./clBitCrack [OPTIONS] [TARGETS]
+```
+
+Where `[TARGETS]` are one or more Bitcoin addresses.
+
+---
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `-i, --in FILE` | Read target addresses from FILE, one per line. Use `-` for stdin |
+| `-o, --out FILE` | Append found private keys to FILE, one per line |
+| `-d, --device N` | Use GPU device with ID N (default: 0) |
+| `-b, --blocks N` | Number of GPU blocks |
+| `-t, --threads N` | Threads per block (must be a multiple of 32) |
+| `-p, --points N` | Keys processed per thread per iteration |
+| `--keyspace RANGE` | Keyspace range to search (see format below) |
+| `-c, --compressed` | Search compressed addresses (default) |
+| `-u, --uncompressed` | Search uncompressed addresses |
+| `--compression MODE` | `compressed`, `uncompressed`, or `both` |
+| `--stride N` | Increment keys by N instead of 1 |
+| `--share M/N` | Split keyspace into N shares, process share M |
+| `--continue FILE` | Save and resume progress from FILE |
+| `--list-devices` | List available GPU devices |
+
+### Keyspace format
+
+| Format | Meaning |
+|--------|---------|
+| `START:END` | Search from START to END |
+| `START:+COUNT` | Search COUNT keys starting at START |
+| `:END` | Search from key 1 to END |
+| `:+COUNT` | Search COUNT keys starting from key 1 |
+
+---
+
+## Examples
+
+### List available devices
+```bash
+./clBitCrack --list-devices
+```
+
+### Single address, automatic parameters
+```bash
+./clBitCrack 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH
+```
+
+### Multiple addresses from a file, specific keyspace
+```bash
+./clBitCrack -i input.txt -b 64 -t 64 -p 64 \
+  --keyspace 80000000:ffffffff \
+  -o found.txt --compressed
+```
+
+### Small keyspace (puzzle testing)
+```bash
+./clBitCrack -i input0.txt -b 128 -t 128 -p 128 \
+  --keyspace 80000:fffff \
+  -o found.txt --compressed
+```
+
+### Large keyspace with save/resume (e.g. Puzzle 69)
+### The target address is copied into input.txt.
+```bash
+./clBitCrack --continue puzzle69 -i input69.txt -b 256 -t 256 -p 256 \
+  --keyspace 101d83275000000000:1fffffffffffffffff \
+  -o found.txt --compressed
+```
+
+> Progress is saved to `puzzle69` automatically. If interrupted, re-run the same command to resume from where it stopped.
+
+### Verified output example (AMD Radeon RX 470, OpenCL)
+
+```
+[2026-06-26.04:19:04] [Info] Compression: compressed
+[2026-06-26.04:19:04] [Info] Starting at: 0000000000000000000000000000000000000000000000101D83275000000000
+[2026-06-26.04:19:04] [Info] Ending at:   00000000000000000000000000000000000000000000001FFFFFFFFFFFFFFFFF
+[2026-06-26.04:19:04] [Info] Counting by: 0000000000000000000000000000000000000000000000000000000000000001
+[2026-06-26.04:19:04] [Info] Compiling OpenCL kernels...
+[2026-06-26.04:19:04] [Info] Initializing AMD Radeon RX 470 Series (radeonsi, polaris10, ACO, DRM 3.64, 6.17.0-35-generic)
+[2026-06-26.04:19:07] [Info] Generating 16,777,216 starting points (640.0MB)
+[2026-06-26.04:19:10] [Info] 10.0%
+[2026-06-26.04:19:11] [Info] 20.0%
+[2026-06-26.04:19:12] [Info] 30.0%
+[2026-06-26.04:19:12] [Info] 40.0%
+[2026-06-26.04:19:13] [Info] 50.0%
+[2026-06-26.04:19:14] [Info] 60.0%
+[2026-06-26.04:19:14] [Info] 70.0%
+[2026-06-26.04:19:15] [Info] 80.0%
+[2026-06-26.04:19:16] [Info] 90.0%
+[2026-06-26.04:19:16] [Info] 100.0%
+[2026-06-26.04:19:16] [Info] Done
+[2026-06-26.04:19:16] [Info] Loading addresses from 'input69.txt'
+[2026-06-26.04:19:16] [Info] 1 addresses loaded (0.0MB)
+AMD Radeon RX 47 1536 / 8192MB | 1 target 121.70 MKey/s (5,637,144,576 total) [00:00:43][2026-06-26.04:20:04] [Info] Checkpoint
+AMD Radeon RX 47 1536 / 8192MB | 1 target 119.18 MKey/s (12,901,679,104 total) [00:01:44][2026-06-26.04:21:04] [Info] Checkpoint
+AMD Radeon RX 47 1536 / 8192MB | 1 target 117.26 MKey/s (20,099,104,768 total) [00:02:45][2026-06-26.04:22:05] [Info] Checkpoint
+AMD Radeon RX 47 1536 / 8192MB | 1 target 116.57 MKey/s (27,296,530,432 total) [00:03:46][2026-06-26.04:23:07] [Info] Checkpoint
+AMD Radeon RX 47 1536 / 8192MB | 1 target 115.77 MKey/s (34,275,852,288 total) [00:04:46][2026-06-26.04:24:07] [Info] Checkpoint
+AMD Radeon RX 47 1536 / 8192MB | 1 target 115.09 MKey/s (41,255,174,144 total) [00:05:47][2026-06-26.04:25:08] [Info] Checkpoint
+AMD Radeon RX 47 1536 / 8192MB | 1 target 114.79 MKey/s (48,234,496,000 total) [00:06:48][2026-06-26.04:26:08] [Info] Checkpoint
+AMD Radeon RX 47 1536 / 8192MB | 1 target 114.43 MKey/s (55,213,817,856 total) [00:07:49][2026-06-26.04:27:09] [Info] Checkpoint
+AMD Radeon RX 47 1536 / 8192MB | 1 target 114.37 MKey/s (62,193,139,712 total) [00:08:50][2026-06-26.04:28:10] [Info] Checkpoint
+AMD Radeon RX 47 1536 / 8192MB | 1 target 113.89 MKey/s (67,209,527,296 total) [00:09:34][2026-06-26.04:28:54] [Info] Address:     19vkiEajfhuZ8bs8Zu2jgmC6oqZbWqhxhG
+                             Private key: 0000000000000000000000000000000000000000000000101D83275FB2BC7E0C
+                             Compressed:  yes
+                             Public key:  
+                             024BABADCCC6CFD5F0E5E7FD2A50AA7D677CE0AA16FDCE26A0D0882EED03E7BA53
+                             
+[2026-06-26.04:28:54] [Info] No targets remaining
+AMD Radeon RX 47 1536 / 8192MB | 1 target 114.49 MKey/s (67,427,631,104 total) [00:09:36]
+```
+
+---
+
+## Choosing the Right Parameters for Your Device
+
+GPUs divide work into **blocks → threads → keys per thread**.
+
+| Parameter | Flag | Recommendation |
+|-----------|------|----------------|
+| Blocks | `-b` | Multiple of the number of GPU compute units. Start with `128` or `256` |
+| Threads | `-t` | Must be a multiple of 32. Typical values: `128`, `256` |
+| Keys per thread | `-p` | Higher = more keys per launch, better throughput. Start with `128` or `256` |
+
+> **Tip:** For AMD GCN cards (RX 470/480/570/580), `-b 256 -t 256 -p 256` is a good starting point. Increase `-p` to improve MKey/s if the GPU is not fully saturated.
+
+---
+
+## Supporting this project
+
+If you find this project useful and would like to support it, consider making a donation:
+
+**BTC:** `bc1q6c2lux7muk5nagcqzy299s5gz0h7cksx9nqaq5`
+
+**SOL:** `DvvjyQT71wEw14n5SEbzKjQx2NJ9CWSw5Z3c2xyF7GPt`

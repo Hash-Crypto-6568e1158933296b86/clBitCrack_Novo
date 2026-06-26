@@ -1,5 +1,5 @@
 
-CUR_DIR=$(shell pwd)
+CUR_DIR=$(shell pwd | sed 's/ /\\ /g')
 DIRS=util AddressUtil CmdParse CryptoUtil KeyFinderLib CLKeySearchDevice CudaKeySearchDevice cudaMath clUtil cudaUtil secp256k1lib Logger embedcl
 
 INCLUDE = $(foreach d, $(DIRS), -I$(CUR_DIR)/$d)
@@ -49,7 +49,7 @@ ifeq ($(BUILD_CUDA),1)
 endif
 
 ifeq ($(BUILD_OPENCL),1)
-	TARGETS:=${TARGETS} dir_embedcl dir_clKeySearchDevice dir_clutil dir_clunittest
+	TARGETS:=${TARGETS} dir_embedcl dir_clKeySearchDevice dir_clutil
 	CXXFLAGS:=${CXXFLAGS} -DCL_TARGET_OPENCL_VERSION=${OPENCL_VERSION}
 endif
 
