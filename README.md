@@ -69,7 +69,7 @@ The binaries will appear in bin/ (clBitCrack.exe, addrgen.exe, …).
 4. Build:
 
 ```bash
-gitclone https://github.com/Hash-Crypto-6568e1158933296b86/clBitCrack_Novo.git
+git clone https://github.com/Hash-Crypto-6568e1158933296b86/clBitCrack_Novo.git
 /home/src/clBitCrack_Novo
 cd clBitCrack_Novo
 make BUILD_OPENCL=1
