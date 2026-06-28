@@ -81,26 +81,16 @@ void resultCallback(KeySearchResult info)
 		return;
 	}
 
-	std::string logStr = "Address:     " + info.address + "\n";
-	logStr += "Private key: " + info.privateKey.toString(16) + "\n";
-	logStr += "Compressed:  ";
-
+	fprintf(stderr, "\n");
+	Logger::log(LogLevel::Info, "Address:     " + info.address);
+	Logger::log(LogLevel::Info, "Private key: " + info.privateKey.toString(16));
+	Logger::log(LogLevel::Info, "Compressed:  " + std::string(info.compressed ? "yes" : "no"));
 	if(info.compressed) {
-		logStr += "yes\n";
+		Logger::log(LogLevel::Info, "Public key:  " + info.publicKey.toString(true));
 	} else {
-		logStr += "no\n";
+		Logger::log(LogLevel::Info, "Public key:  " + info.publicKey.x.toString(16));
+		Logger::log(LogLevel::Info, "             " + info.publicKey.y.toString(16));
 	}
-
-	logStr += "Public key:  \n";
-
-	if(info.compressed) {
-		logStr += info.publicKey.toString(true) + "\n";
-	} else {
-		logStr += info.publicKey.x.toString(16) + "\n";
-		logStr += info.publicKey.y.toString(16) + "\n";
-	}
-
-	Logger::log(LogLevel::Info, logStr);
 }
 
 /**

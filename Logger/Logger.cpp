@@ -50,23 +50,7 @@ std::string Logger::formatLog(int logLevel, std::string msg)
 
 	std::string prefix = "[" + dateTime + "] [" + LogLevel::toString(logLevel) + "] ";
 
-	size_t prefixLen = prefix.length();
-
-	std::string padding(prefixLen, ' ');
-
-	if(msg.find('\n', 0) != std::string::npos) {
- 		size_t pos = 0;
-		size_t prev = 0;
-
-		while((pos = msg.find('\n', prev)) != std::string::npos) {
-			prefix += msg.substr(prev, pos - prev) + "\n" + padding;
-			prev = pos + 1;
-		}
-
-		prefix += msg.substr(prev);
-	} else {
-		prefix += msg;
-	}
+	prefix += msg;
 
 	return prefix;
 }
