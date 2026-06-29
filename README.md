@@ -1,6 +1,7 @@
 # clBitCrack_Novo
 
 # Added clBitCrack_Bot to the release.
+# Install GOLANG.
 
 <img width="893" height="883" alt="clBitCrack_bot" src="https://github.com/user-attachments/assets/fda4b000-c93c-4dc3-9a78-b46b51dea645" />
 
